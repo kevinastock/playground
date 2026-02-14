@@ -9,4 +9,10 @@ name = "cli"
 path = "src/main.rs"
 
 [dependencies]
+anyhow.workspace = true
+clap.workspace = true
 client.workspace = true
+tokio.workspace = true
+time.workspace = true
+tracing.workspace = true
+uuid.workspace = true
