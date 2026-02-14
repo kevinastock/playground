@@ -1,0 +1,16 @@
+[workspace]
+members = [
+    "crates/server",
+    "crates/client",
+    "crates/cli",
+]
+resolver = "2"
+
+[workspace.package]
+edition = "2021"
+license = "MIT OR Apache-2.0"
+version = "0.1.0"
+authors = ["Kevin Stock"]
+
+[workspace.dependencies]
+client = { path = "crates/client" }
