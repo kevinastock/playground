@@ -16,6 +16,7 @@ authors = ["Kevin Stock"]
 client = { path = "crates/client" }
 anyhow = "1"
 clap = { version = "4", features = ["derive"] }
+ratatui = "0.29"
 sqlx = { version = "0.8", features = ["sqlite", "runtime-tokio-rustls"] }
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 time = "0.3"
