@@ -1,0 +1,47 @@
+name: Rust CI
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "**/*.rs"
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - "justfile"
+      - ".github/workflows/rust.yml"
+  pull_request:
+    paths:
+      - "**/*.rs"
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - "justfile"
+      - ".github/workflows/rust.yml"
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Install just
+        uses: taiki-e/install-action@just
+
+      - name: Cargo check
+        run: just check
+
+      - name: Cargo fmt (check)
+        run: just fmt-check
+
+      - name: Cargo clippy
+        run: just clippy
+
+      - name: Cargo test
+        run: just test
