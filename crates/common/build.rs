@@ -1,7 +1,15 @@
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("cargo:rerun-if-changed=proto/hello.proto");
 
-    tonic_build::configure().compile_protos(&["proto/hello.proto"], &["proto"])?;
+    let protoc = protoc_bin_vendored::protoc_bin_path()?;
+    let mut prost_config = prost_build::Config::new();
+    prost_config.protoc_executable(protoc);
+
+    tonic_build::configure().compile_protos_with_config(
+        prost_config,
+        &["proto/hello.proto"],
+        &["proto"],
+    )?;
 
     Ok(())
 }
