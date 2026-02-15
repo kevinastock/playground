@@ -1,13 +1,19 @@
-pub fn greeting(name: &str) -> String {
-    format!("Hello, {name}!")
+use common::hello::{HelloRequest, greeter_client::GreeterClient};
+use tonic::transport::{Channel, Error as TransportError};
+
+pub struct Client {
+    inner: GreeterClient<Channel>,
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+impl Client {
+    pub async fn connect(server_url: impl Into<String>) -> Result<Self, TransportError> {
+        let inner = GreeterClient::connect(server_url.into()).await?;
+        Ok(Self { inner })
+    }
 
-    #[test]
-    fn greeting_includes_name() {
-        assert_eq!(greeting("world"), "Hello, world!");
+    pub async fn say_hello(&mut self, name: impl Into<String>) -> Result<String, tonic::Status> {
+        let request = tonic::Request::new(HelloRequest { name: name.into() });
+        let response = self.inner.say_hello(request).await?;
+        Ok(response.into_inner().message)
     }
 }

@@ -1,10 +1,30 @@
-use std::path::PathBuf;
+use std::{net::SocketAddr, path::PathBuf};
 
 use anyhow::{Context, Result};
 use clap::Parser;
+use common::hello::{
+    HelloReply, HelloRequest,
+    greeter_server::{Greeter, GreeterServer},
+};
 use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
 use tracing::info;
 use tracing_subscriber::EnvFilter;
+
+#[derive(Default)]
+struct HelloService;
+
+#[tonic::async_trait]
+impl Greeter for HelloService {
+    async fn say_hello(
+        &self,
+        request: tonic::Request<HelloRequest>,
+    ) -> Result<tonic::Response<HelloReply>, tonic::Status> {
+        let name = request.into_inner().name;
+        let message = format!("Hello, {name}!");
+
+        Ok(tonic::Response::new(HelloReply { message }))
+    }
+}
 
 #[derive(Debug, Parser)]
 #[command(author, version, about = "Server process")]
@@ -12,6 +32,9 @@ struct Cli {
     /// Filesystem path to the SQLite database file.
     #[arg(long, value_name = "PATH")]
     sqlite_path: PathBuf,
+    /// gRPC listen address.
+    #[arg(long, value_name = "ADDR", default_value = "127.0.0.1:50051")]
+    listen_addr: SocketAddr,
 }
 
 #[tokio::main]
@@ -42,7 +65,17 @@ async fn main() -> Result<()> {
         .await
         .context("failed to run database migrations")?;
 
-    info!(sqlite_path = %cli.sqlite_path.display(), "server started");
+    info!(
+        sqlite_path = %cli.sqlite_path.display(),
+        listen_addr = %cli.listen_addr,
+        "server started"
+    );
+
+    tonic::transport::Server::builder()
+        .add_service(GreeterServer::new(HelloService))
+        .serve(cli.listen_addr)
+        .await
+        .with_context(|| format!("grpc server failed on {}", cli.listen_addr))?;
 
     Ok(())
 }

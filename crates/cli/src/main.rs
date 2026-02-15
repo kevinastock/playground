@@ -1,32 +1,22 @@
+use anyhow::Result;
 use clap::Parser;
-use std::path::PathBuf;
 
 #[derive(Debug, Parser)]
 struct Args {
-    #[arg(long, value_name = "PATH")]
-    sqlite_db: PathBuf,
-    #[arg(long, value_name = "URL")]
+    #[arg(long, value_name = "URL", default_value = "http://127.0.0.1:50051")]
     server_url: String,
+    #[arg(long, value_name = "NAME", default_value = "world")]
+    name: String,
 }
 
 #[tokio::main]
-async fn main() -> std::io::Result<()> {
+async fn main() -> Result<()> {
     let args = Args::parse();
+    let mut client = client::Client::connect(args.server_url.clone()).await?;
+    let greeting = client.say_hello(args.name).await?;
 
-    let mut terminal = ratatui::init();
-    let draw_result = terminal.draw(|frame| {
-        let message = format!(
-            "sqlite db: {}\nserver url: {}",
-            args.sqlite_db.display(),
-            args.server_url
-        );
-        frame.render_widget(ratatui::widgets::Paragraph::new(message), frame.area());
-    });
-    ratatui::restore();
-    draw_result?;
-
-    println!("sqlite db: {}", args.sqlite_db.display());
     println!("server url: {}", args.server_url);
+    println!("rpc response: {greeting}");
 
     Ok(())
 }
