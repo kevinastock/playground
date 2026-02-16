@@ -4,6 +4,7 @@ members = [
     "crates/server",
     "crates/client",
     "crates/cli",
+    "crates/testing",
 ]
 resolver = "3"
 
@@ -16,6 +17,7 @@ authors = ["Kevin Stock"]
 [workspace.dependencies]
 client = { path = "crates/client" }
 common = { path = "crates/common" }
+server = { path = "crates/server" }
 anyhow = "1"
 clap = { version = "4", features = ["derive"] }
 prost = "0.13"
@@ -24,6 +26,7 @@ protoc-bin-vendored = "3"
 ratatui = "0.29"
 sqlx = { version = "0.8", features = ["sqlite", "runtime-tokio-rustls"] }
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+tokio-stream = { version = "0.1", features = ["net"] }
 time = "0.3"
 tonic = "0.12"
 tonic-build = "0.12"

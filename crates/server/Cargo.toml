@@ -14,6 +14,7 @@ clap.workspace = true
 common.workspace = true
 sqlx.workspace = true
 tokio.workspace = true
+tokio-stream.workspace = true
 time.workspace = true
 tonic.workspace = true
 tracing.workspace = true
